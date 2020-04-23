@@ -12,7 +12,7 @@ recognition of Tokens
 
 make parse tree givem the expression
 
-lets take ambiguity
+ambiguity
 
 
 https://youtu.be/C22hQKE_32c 
