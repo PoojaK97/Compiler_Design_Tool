@@ -1,6 +1,11 @@
 # ComiplerDesign-EduTool
 
 Kruthika,Pooja,Mansi,Naveen
+
+
+
+
+
 structure of compiler
 recognition of Tokens
 make parse tree givem the expression
