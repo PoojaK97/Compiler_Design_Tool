@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - Rete.js (Events/Tasks)</title>
+  <script> var data= {
+  id: "events@0.1.0",
+  // nodes: {
+  //   "2": {
+  //     id: 2,
+  //     data: {},
+  //     group: null,
+  //     inputs: [],
+  //     outputs: [
+  //       {
+  //         connections: [
+  //           {
+  //             node: 3,
+  //             input: 0
+  //           }
+  //         ]
+  //       },
+  //     ],
+  //     position: [114, 133],
+  //     title: "Root"
+  //   },
+  //   "3": {
+  //     id: 3,
+  //     data: {},
+  //     group: null,
+  //     inputs: [
+  //       // {
+  //       //   connections: [
+  //       //     {
+  //       //       node: 2,
+  //       //       output: 0
+  //       //     }
+  //       //   ]
+  //       // },
+  //       // {
+  //       //   connections: [
+  //       //     {
+  //       //       node: 2,
+  //       //       output: 1
+  //       //     }
+  //       //   ]
+  //       // }
+  //     ],
+  //     outputs: [
+  //       {
+  //         connections: [
+  //           {
+  //             node: 10,
+  //             input: 0
+  //           }
+  //         ]
+  //       },
+  //       {
+  //         connections: [
+  //           {
+  //             node: 11,
+  //             input: 0
+  //           }
+  //         ]
+  //       }
+  //     ],
+  //     position: [443, 112],
+  //     title: "Operator"
+  //   },
+  //   "10": {
+  //     id: 10,
+  //     data: {
+  //       msg: "Enter!"
+  //     },
+  //     group: null,
+  //     inputs: [
+  //       {
+  //         connections: [
+  //           {
+  //             node: 3,
+  //             output: 0
+  //           }
+  //         ]
+  //       }
+  //     ],
+  //     outputs: [],
+  //     position: [773, 106],
+  //     title: "Operand"
+  //   },
+  //   "11": {
+  //     id: 11,
+  //     data: {
+  //       msg: "Another key pressed"
+  //     },
+  //     group: null,
+  //     inputs: [
+  //       {
+  //         connections: [
+  //           {
+  //             node: 3,
+  //             output: 1
+  //           }
+  //         ]
+  //       }
+  //     ],
+  //     outputs: [],
+  //     position: [766, 292],
+  //     title: "Operand"
+  //   }
+  // },
+  groups: {}
+};
+</script><link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+
+  <div class="wideBox">
+    <h1>BUILD THE SYNTAX TREE</h1>
+    <h2>Q1: 5*2+3</h2>
+  </div>
+
+<div id="rete" class="node-editor"></div>
+
+<!--<a target="_blank" href="https://github.com/retejs/rete"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+-->
+  <script src='https://cdn.jsdelivr.net/npm/rete@1.0.0-alpha.9/build/rete.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/alight@0.14.1/alight.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/rete-alight-render-plugin@0.1.5/build/alight-render-plugin.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/rete-connection-plugin@0.1.2/build/connection-plugin.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/rete-context-menu-plugin@0.1.4/build/context-menu-plugin.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/rete-task-plugin@0.1.7/build/task-plugin.min.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>
