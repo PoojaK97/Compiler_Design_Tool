@@ -128,7 +128,7 @@ body {
   #successMessage {
     position: absolute;
     left: 580px;
-    top: 250px;
+    top: 100px;
     width: 0;
     height: 0;
     z-index: 100;
