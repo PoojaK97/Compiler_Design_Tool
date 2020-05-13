@@ -335,3 +335,4 @@ editor.fromJSON(data).then(() => {
     editor.view.resize();
     compile();
 });
+
