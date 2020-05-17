@@ -18,7 +18,7 @@
       for (var i=0; i< ql; i=i+2) {
         arr[i]=Math.floor(Math.random()*10);
       }
-      var ops = [ '+', '-', '*'];
+      var ops = [ '+', '-', '*', '/'];
       for (var i=1; i< ql; i=i+2) {
         var a=Math.floor(Math.random()*ops.length);
         arr[i] = ops[a];
@@ -50,7 +50,9 @@
   <h1>BUILD THE SYNTAX TREE</h1>
   <h2 id="ques">Q1: 5*2+3</h2>
   <script>
-      var q = genques();
+      var q = genques(); //QUES
+      var a = eval(q); //ANS
+      console.log(eval(q));
       document.getElementById("ques").innerHTML = q;
   </script>
 </div>
