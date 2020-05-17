@@ -3,6 +3,7 @@ var counter = 0;
 var answer;
 
 function getans(a, b) {
+  console.log(counter);
   if (counter - 1 == a && b==answer)
     return true;
   else
@@ -49,13 +50,13 @@ class NumControl extends Rete.Control {
 class RootComponent extends Rete.Component {
   constructor(){
       super("Root");
-      counter++;
+      
   }
 
   builder(node) {
       var inp1 = new Rete.Input('num',"Number", numSocket);
       //var out = new Rete.Output('num', "Number", numSocket);
-
+      counter++;
       return node
           .addInput(inp1)
           //.addControl(new NumControl(this.editor, 'preview', true))
@@ -75,12 +76,11 @@ class NumComponent extends Rete.Component {
 
     constructor(){
         super("Number");
-        counter++;
     }
 
     builder(node) {
         var out1 = new Rete.Output('num', "Number", numSocket);
-
+        counter++;
         return node.addControl(new NumControl(this.editor, 'num')).addOutput(out1);
     }
 
@@ -92,14 +92,13 @@ class NumComponent extends Rete.Component {
 class AddComponent extends Rete.Component {
     constructor(){
         super("Add");
-        counter++;
     }
 
     builder(node) {
         var inp1 = new Rete.Input('num',"a", numSocket);
         var inp2 = new Rete.Input('num2', "b", numSocket);
         var out = new Rete.Output('num', "Number", numSocket);
-
+        counter++;
         //inp1.addControl(new NumControl(this.editor, 'num'))
         //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -123,14 +122,13 @@ class AddComponent extends Rete.Component {
 class DivideComponent extends Rete.Component {
   constructor(){
       super("Divide");
-      counter++;
   }
 
   builder(node) {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-
+      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -154,14 +152,13 @@ class DivideComponent extends Rete.Component {
 class SubtractComponent extends Rete.Component {
   constructor(){
       super("Subtract");
-      counter++;
   }
 
   builder(node) {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-
+      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -185,14 +182,13 @@ class SubtractComponent extends Rete.Component {
 class ProductComponent extends Rete.Component {
   constructor(){
       super("Multiply");
-      counter++;
   }
 
   builder(node) {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-
+      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -215,7 +211,7 @@ class ProductComponent extends Rete.Component {
 
 (async () => {
     var container = document.querySelector('#rete');
-    var components = [new NumComponent(), new AddComponent(), new SubtractComponent(), new ProductComponent(), new RootComponent(), new DivideComponent() ];
+    var components = [new NumComponent, new AddComponent, new SubtractComponent, new ProductComponent, new RootComponent, new DivideComponent ];
     
     var editor = new Rete.NodeEditor('demo@0.1.0', container);
     editor.use(ConnectionPlugin.default);
