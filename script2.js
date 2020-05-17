@@ -1,4 +1,13 @@
 var numSocket = new Rete.Socket('Number value');
+var counter = 0;
+var answer;
+
+function getans(a, b) {
+  if (counter - 1 == a && b==answer)
+    return true;
+  else
+    return false;
+}
 
 var VueNumControl = {
   props: ['readonly', 'emitter', 'ikey', 'getData', 'putData'],
@@ -40,22 +49,25 @@ class NumControl extends Rete.Control {
 class RootComponent extends Rete.Component {
   constructor(){
       super("Root");
+      counter++;
   }
 
   builder(node) {
       var inp1 = new Rete.Input('num',"Number", numSocket);
-      var out = new Rete.Output('num', "Number", numSocket);
+      //var out = new Rete.Output('num', "Number", numSocket);
 
       return node
           .addInput(inp1)
-          .addControl(new NumControl(this.editor, 'preview', true))
-          .addOutput(out);
+          //.addControl(new NumControl(this.editor, 'preview', true))
+          //.addOutput(out);
   }
 
   worker(node, inputs, outputs) {
       var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
-      this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(n1);
-      outputs['num'] = n1;
+      //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(n1);
+      //outputs['num'] = n1;
+      answer = n1;
+      console.log(answer);
   }
 }
 
@@ -63,6 +75,7 @@ class NumComponent extends Rete.Component {
 
     constructor(){
         super("Number");
+        counter++;
     }
 
     builder(node) {
@@ -79,6 +92,7 @@ class NumComponent extends Rete.Component {
 class AddComponent extends Rete.Component {
     constructor(){
         super("Add");
+        counter++;
     }
 
     builder(node) {
@@ -106,9 +120,41 @@ class AddComponent extends Rete.Component {
     }
 }
 
+class DivideComponent extends Rete.Component {
+  constructor(){
+      super("Divide");
+      counter++;
+  }
+
+  builder(node) {
+      var inp1 = new Rete.Input('num',"a", numSocket);
+      var inp2 = new Rete.Input('num2', "b", numSocket);
+      var out = new Rete.Output('num', "Number", numSocket);
+
+      //inp1.addControl(new NumControl(this.editor, 'num'))
+      //inp2.addControl(new NumControl(this.editor, 'num2'))
+
+      return node
+          .addInput(inp1)
+          .addInput(inp2)
+          //.addControl(new NumControl(this.editor, 'preview', true))
+          .addOutput(out);
+  }
+
+  worker(node, inputs, outputs) {
+      var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
+      var n2 = inputs['num2'].length?inputs['num2'][0]:node.data.num2;
+      var sum = n1 / n2;
+      
+      //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(sum);
+      outputs['num'] = sum;
+  }
+}
+
 class SubtractComponent extends Rete.Component {
   constructor(){
       super("Subtract");
+      counter++;
   }
 
   builder(node) {
@@ -139,6 +185,7 @@ class SubtractComponent extends Rete.Component {
 class ProductComponent extends Rete.Component {
   constructor(){
       super("Multiply");
+      counter++;
   }
 
   builder(node) {
@@ -168,7 +215,7 @@ class ProductComponent extends Rete.Component {
 
 (async () => {
     var container = document.querySelector('#rete');
-    var components = [new NumComponent(), new AddComponent(), new SubtractComponent, new ProductComponent, new RootComponent];
+    var components = [new NumComponent(), new AddComponent(), new SubtractComponent(), new ProductComponent(), new RootComponent(), new DivideComponent() ];
     
     var editor = new Rete.NodeEditor('demo@0.1.0', container);
     editor.use(ConnectionPlugin.default);
