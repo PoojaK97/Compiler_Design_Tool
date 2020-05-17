@@ -1,338 +1,217 @@
-var actionSocket = new Rete.Socket('Action');
-var dataSocket = new Rete.Socket('Data');
+var numSocket = new Rete.Socket('Number value');
 
-var eventHandlers = {
-    list: [],
-    clear() {
-        this.list.forEach(handler => {
-            document.removeEventListener('keydown', handler);
-        });
-        this.list = [];
+var VueNumControl = {
+  props: ['readonly', 'emitter', 'ikey', 'getData', 'putData'],
+  template: '<input type="number" :readonly="readonly" :value="value" @input="change($event)" @dblclick.stop="" @pointerdown.stop="" @pointermove.stop=""/>',
+  data() {
+    return {
+      value: 0,
+    }
+  },
+  methods: {
+    change(e){
+      this.value = +e.target.value;
+      this.update();
     },
-    add(name, handler) {
-        document.addEventListener(name, handler, false);
-        this.list.push(handler);
-    }
-};
-
-
-
-class MessageControl extends Rete.Control {
-
-    constructor(emitter, msg) {
-        super();
-        this.emitter = emitter;
-        this.template = '<input :value="msg" @input="change($event)"/>';
-
-        this.scope = {
-            msg,
-            change: this.change.bind(this)
-        };
-    }
-
-    change(e) {
-        this.scope.value = +e.target.value;
-        this.update();
-    }
-
     update() {
-        this.putData('msg', this.scope.value)
-        this.emitter.trigger('process');
-        this._alight.scan();
+      if (this.ikey)
+        this.putData(this.ikey, this.value)
+      this.emitter.trigger('process');
     }
-
-    mounted() {
-        this.scope.value = this.getData('msg') || 0;
-        this.update();
-    }
-
-    setValue(val) {
-        this.scope.value = val;
-        this._alight.scan()
-    }
+  },
+  mounted() {
+    this.value = this.getData(this.ikey);
+  }
 }
 
-// class KeydownComponent extends Rete.Component {
-  
-//   constructor(){
-//     super('Keydown event');
-//     this.task = {
-//       outputs: {act: 'option',  key: 'output'},
-//       init(task, node){
-//         eventHandlers.add('keydown', function (e) {
-//           task.run(e.keyCode);
-//           task.reset();
-//         });
-//       }
-//     }
-//   }
-  
-//   builder(node) {
-//     node.addOutput(new Rete.Output('act', '', actionSocket));
-//     node.addOutput(new Rete.Output('act', '', actionSocket));
-//     node.addOutput(new Rete.Output('key', 'Key code', dataSocket));
-//   }
-  
-//   worker(node, inputs, data) {
-//     console.log('Keydown event', node.id, data);
-//     return {key: data}
-//   }
-// }
+class NumControl extends Rete.Control {
+
+  constructor(emitter, key, readonly) {
+    super(key);
+    this.component = VueNumControl;
+    this.props = { emitter, ikey: key, readonly };
+  }
+
+  setValue(val) {
+    this.vueContext.value = val;
+  }
+}
 
 class RootComponent extends Rete.Component {
-  
-    constructor(){
-      super('Root');
-      this.task = {
-        outputs: {then:'option', else:'option'}
-      }
-    }
-    
-    builder(node) {
-
-        var ctrl = new MessageControl(this.editor, node.data.msg);
-  
-      node
-        .addControl(ctrl)
-        //.addInput(new Rete.Input('act','', actionSocket))
-        //.addInput(new Rete.Input('key', 'Key code', dataSocket))
-        .addOutput(new Rete.Output('then', '', actionSocket))
-        .addOutput(new Rete.Output('else', '', actionSocket));
-    }
-  
-    worker(node, inputs, outputs) {
-      if (inputs['key'][0] == 13) 
-        this.closed = ['else'];
-      else 
-        this.closed = ['then'];
-
-        alert(node.data.msg);
-  
-      console.log('Print', node.id, inputs);
-    }
-  }
-
-class EnterPressComponent extends Rete.Component {
-  
   constructor(){
-    super('Operator');
-    this.task = {
-      outputs: {then:'option', else:'option'}
-    }
+      super("Root");
   }
-  
+
   builder(node) {
+      var inp1 = new Rete.Input('num',"Number", numSocket);
+      var out = new Rete.Output('num', "Number", numSocket);
 
-    var ctrl = new MessageControl(this.editor, node.data.msg);
-
-    node
-      .addControl(ctrl)
-      .addInput(new Rete.Input('act','', actionSocket))
-      //.addInput(new Rete.Input('key', 'Key code', dataSocket))
-      .addOutput(new Rete.Output('then', '', actionSocket))
-      .addOutput(new Rete.Output('else', '', actionSocket));
+      return node
+          .addInput(inp1)
+          .addControl(new NumControl(this.editor, 'preview', true))
+          .addOutput(out);
   }
 
   worker(node, inputs, outputs) {
-    if (inputs['key'][0] == 13) 
-      this.closed = ['else'];
-    else 
-      this.closed = ['then'];
-
-      alert(node.data.msg);
-
-    console.log('Print', node.id, inputs);
+      var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
+      this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(n1);
+      outputs['num'] = n1;
   }
 }
 
-class AlertComponent extends Rete.Component {
-  
-  constructor() {
-    super('Operand');
-    this.task = {
-      outputs: {}
+class NumComponent extends Rete.Component {
+
+    constructor(){
+        super("Number");
     }
+
+    builder(node) {
+        var out1 = new Rete.Output('num', "Number", numSocket);
+
+        return node.addControl(new NumControl(this.editor, 'num')).addOutput(out1);
+    }
+
+    worker(node, inputs, outputs) {
+        outputs['num'] = node.data.num;
+    }
+}
+
+class AddComponent extends Rete.Component {
+    constructor(){
+        super("Add");
+    }
+
+    builder(node) {
+        var inp1 = new Rete.Input('num',"a", numSocket);
+        var inp2 = new Rete.Input('num2', "b", numSocket);
+        var out = new Rete.Output('num', "Number", numSocket);
+
+        //inp1.addControl(new NumControl(this.editor, 'num'))
+        //inp2.addControl(new NumControl(this.editor, 'num2'))
+
+        return node
+            .addInput(inp1)
+            .addInput(inp2)
+            //.addControl(new NumControl(this.editor, 'preview', true))
+            .addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {
+        var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
+        var n2 = inputs['num2'].length?inputs['num2'][0]:node.data.num2;
+        var sum = n1 + n2;
+        
+        //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(sum);
+        outputs['num'] = sum;
+    }
+}
+
+class SubtractComponent extends Rete.Component {
+  constructor(){
+      super("Subtract");
   }
 
   builder(node) {
-    var ctrl = new MessageControl(this.editor, node.data.msg);
-    
-    node
-      .addControl(ctrl)
-      .addInput(new Rete.Input('act', '', actionSocket));
+      var inp1 = new Rete.Input('num',"a", numSocket);
+      var inp2 = new Rete.Input('num2', "b", numSocket);
+      var out = new Rete.Output('num', "Number", numSocket);
+
+      //inp1.addControl(new NumControl(this.editor, 'num'))
+      //inp2.addControl(new NumControl(this.editor, 'num2'))
+
+      return node
+          .addInput(inp1)
+          .addInput(inp2)
+          //.addControl(new NumControl(this.editor, 'preview', true))
+          .addOutput(out);
   }
 
-  worker(node, inputs) {
-    console.log('Operand', node.id, node.data);
-    alert(node.data.msg);
- }
+  worker(node, inputs, outputs) {
+      var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
+      var n2 = inputs['num2'].length?inputs['num2'][0]:node.data.num2;
+      var diff = n1 - n2;
+      
+      //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(sum);
+      outputs['num'] = diff;
+  }
 }
 
-var components = [new RootComponent, new EnterPressComponent, new AlertComponent];
-var container = document.querySelector('#rete')
+class ProductComponent extends Rete.Component {
+  constructor(){
+      super("Multiply");
+  }
 
+  builder(node) {
+      var inp1 = new Rete.Input('num',"a", numSocket);
+      var inp2 = new Rete.Input('num2', "b", numSocket);
+      var out = new Rete.Output('num', "Number", numSocket);
 
-var editor = new Rete.NodeEditor('tasksample@0.1.0', container,);
-editor.use(AlightRenderPlugin);
-editor.use(ConnectionPlugin);
-editor.use(ContextMenuPlugin);
-editor.use(TaskPlugin);
+      //inp1.addControl(new NumControl(this.editor, 'num'))
+      //inp2.addControl(new NumControl(this.editor, 'num2'))
 
+      return node
+          .addInput(inp1)
+          .addInput(inp2)
+          //.addControl(new NumControl(this.editor, 'preview', true))
+          .addOutput(out);
+  }
 
-var engine = new Rete.Engine('tasksample@0.1.0');
-
-components.map(c => {
-  editor.register(c);
-  engine.register(c);
-});
-
-editor.on('connectioncreate connectionremove nodecreate noderemove', ()=>{
-  if(editor.silent) return;
-
-  eventHandlers.clear();
-  compile();
-});
-
-
-
-
-async function compile() {
-    await engine.abort();
-    await engine.process(editor.toJSON());
+  worker(node, inputs, outputs) {
+      var n1 = inputs['num'].length?inputs['num'][0]:node.data.num1;
+      var n2 = inputs['num2'].length?inputs['num2'][0]:node.data.num2;
+      var prod = n1 * n2;
+      
+      //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(sum);
+      outputs['num'] = prod;
+  }
 }
 
+(async () => {
+    var container = document.querySelector('#rete');
+    var components = [new NumComponent(), new AddComponent(), new SubtractComponent, new ProductComponent, new RootComponent];
+    
+    var editor = new Rete.NodeEditor('demo@0.1.0', container);
+    editor.use(ConnectionPlugin.default);
+    editor.use(VueRenderPlugin.default);    
+    editor.use(ContextMenuPlugin.default);
+    editor.use(AreaPlugin);
+    editor.use(CommentPlugin.default);
+    editor.use(HistoryPlugin);
+    editor.use(ConnectionMasteryPlugin.default);
+
+    var engine = new Rete.Engine('demo@0.1.0');
+    
+    components.map(c => {
+        editor.register(c);
+        engine.register(c);
+    });
+
+    var n1 = await components[0].createNode({num: 2});
+    var n2 = await components[0].createNode({num: 0});
+    var add = await components[1].createNode();
+    var root = await components[4].createNode();
+
+    n1.position = [80, 100];
+    n2.position = [80, 250];
+    add.position = [500, 150];
+    root.position = [800, 200];
+
+    editor.addNode(root);
+    editor.addNode(n1);
+    editor.addNode(n2);
+    editor.addNode(add);
+
+    editor.connect(n1.outputs.get('num'), add.inputs.get('num'));
+    editor.connect(n2.outputs.get('num'), add.inputs.get('num2'));
 
 
-var data = {
-    'id': 'tasksample@0.1.0',
-    'nodes': {
-        '2': {
-            'id': 2,
-            'data':  {
-                'msg': 'Enter!'
-            },
-            'group': null,
-            'inputs': {},
-            'outputs': {
-                'act': {
-                    'connections': [
-                        {
-                            'node': 3,
-                            'input': 'act'
-                        }
-                    ]
-                },
-                // 'key': {
-                //     'connections': [
-                //         {
-                //             'node': 3,
-                //             'input': 'key'
-                //         }
-                //     ]
-                // }
-            },
-            'position': [
-                114, 133
-            ],
-            'name': 'Root'
-        },
-    //     '3': {
-    //         'id': 3,
-    //         'data':  {
-    //             'msg': 'Enter!'
-    //         },
-    //         'group': null,
-    //         'inputs': {
-    //             'act':{
-    //                 'connections': [
-    //                     {
-    //                         'node': 2,
-    //                         'output': 'act'
-    //                     }
-    //                 ]
-    //             }, 
-    //             // 'key': {
-    //             //     'connections': [
-    //             //         {
-    //             //             'node': 2,
-    //             //             'output': 'key'
-    //             //         }
-    //             //     ]
-    //             // }
-    //         },
-    //         'outputs': {
-    //             'then':{
-    //                 'connections': [
-    //                     {
-    //                         'node': 10,
-    //                         'input': 'act'
-    //                     }
-    //                 ]
-    //             }, 
-    //             'else': {
-    //                 'connections': [
-    //                     {
-    //                         'node': 11,
-    //                         'input': 'act'
-    //                     }
-    //                 ]
-    //             }
-    //         },
-    //         'position': [
-    //             443, 112
-    //         ],
-    //         'name': 'Operator'
-    //     },
-    //     '10': {
-    //         'id': 10,
-    //         'data': {
-    //             'msg': 'Enter!'
-    //         },
-    //         'group': null,
-    //         'inputs': {
-    //             'act': {
-    //                 'connections': [
-    //                     {
-    //                         'node': 3,
-    //                         'output': 'then'
-    //                     }
-    //                 ]
-    //             }
-    //         },
-    //         'outputs': [],
-    //         'position': [
-    //             773, 106
-    //         ],
-    //         'name': 'Operand'
-    //     },
-    //     '11': {
-    //         'id': 11,
-    //         'data': {
-    //             'msg': 'Another key pressed'
-    //         },
-    //         'group': null,
-    //         'inputs': {
-    //             'act': {
-    //                 'connections': [
-    //                     {
-    //                         'node': 3,
-    //                         'output': 'else'
-    //                     }
-    //                 ]
-    //             }
-    //         },
-    //         'outputs': [],
-    //         'position': [
-    //             766, 292
-    //         ],
-    //         'name': 'Operand'
-    //     }
-    },
-    'groups': {}
-}
+    editor.on('process nodecreated noderemoved connectioncreated connectionremoved', async () => {
+      console.log('process');
+        await engine.abort();
+        await engine.process(editor.toJSON());
+    });
 
-editor.fromJSON(data).then(() => {
     editor.view.resize();
-    compile();
-});
-
+    AreaPlugin.zoomAt(editor);
+    editor.trigger('process');
+})();
