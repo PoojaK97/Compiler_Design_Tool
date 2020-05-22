@@ -3,7 +3,7 @@ var counter = 0;
 var answer;
 
 function getans(a, b) {
-  console.log(counter);
+  //console.log(counter);
   if ((counter - 1 == a) && (b==answer))
     alert(" CORRECT ANSWER ");
   else
@@ -56,7 +56,6 @@ class RootComponent extends Rete.Component {
   builder(node) {
       var inp1 = new Rete.Input('num',"Number", numSocket);
       //var out = new Rete.Output('num', "Number", numSocket);
-      counter++;
       return node
           .addInput(inp1)
           //.addControl(new NumControl(this.editor, 'preview', true))
@@ -68,7 +67,7 @@ class RootComponent extends Rete.Component {
       //this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(n1);
       //outputs['num'] = n1;
       answer = n1;
-      console.log(answer);
+      //console.log(answer);
       
   }
 }
@@ -81,7 +80,6 @@ class NumComponent extends Rete.Component {
 
     builder(node) {
         var out1 = new Rete.Output('num', "Number", numSocket);
-        counter++;
         return node.addControl(new NumControl(this.editor, 'num')).addOutput(out1);
     }
 
@@ -99,7 +97,6 @@ class AddComponent extends Rete.Component {
         var inp1 = new Rete.Input('num',"a", numSocket);
         var inp2 = new Rete.Input('num2', "b", numSocket);
         var out = new Rete.Output('num', "Number", numSocket);
-        counter++;
         //inp1.addControl(new NumControl(this.editor, 'num'))
         //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -129,7 +126,6 @@ class DivideComponent extends Rete.Component {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -159,7 +155,6 @@ class SubtractComponent extends Rete.Component {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
@@ -230,29 +225,34 @@ class ProductComponent extends Rete.Component {
         engine.register(c);
     });
 
-    var n1 = await components[0].createNode({num: 2});
-    var n2 = await components[0].createNode({num: 0});
-    var add = await components[1].createNode();
+    // var n1 = await components[0].createNode({num: 2});
+    // var n2 = await components[0].createNode({num: 0});
+    // var add = await components[1].createNode();
     var root = await components[4].createNode();
 
-    n1.position = [80, 100];
-    n2.position = [80, 250];
-    add.position = [500, 150];
-    root.position = [800, 200];
+    // n1.position = [80, 100];
+    // n2.position = [80, 250];
+    // add.position = [500, 150];
+    //root.position = [1200, 100];
 
     editor.addNode(root);
-    editor.addNode(n1);
-    editor.addNode(n2);
-    editor.addNode(add);
-
-    editor.connect(n1.outputs.get('num'), add.inputs.get('num'));
-    editor.connect(n2.outputs.get('num'), add.inputs.get('num2'));
 
 
-    editor.on('process nodecreated noderemoved connectioncreated connectionremoved', async () => {
-      console.log('process');
+    editor.on('process connectioncreated connectionremoved', async () => {
         await engine.abort();
         await engine.process(editor.toJSON());
+    });
+
+    editor.on('nodecreated', async () => {
+        await engine.abort();
+        await engine.process(editor.toJSON());
+        counter++;
+    });
+
+    editor.on('noderemoved', async () => {
+        await engine.abort();
+        await engine.process(editor.toJSON());
+        counter--;
     });
 
     editor.view.resize();
