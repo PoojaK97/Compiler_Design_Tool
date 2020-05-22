@@ -233,14 +233,14 @@ class ProductComponent extends Rete.Component {
     var n1 = await components[0].createNode({num: 2});
     var n2 = await components[0].createNode({num: 0});
     var add = await components[1].createNode();
-    //var root = await components[4].createNode();
+    var root = await components[4].createNode();
 
     n1.position = [80, 100];
     n2.position = [80, 250];
     add.position = [500, 150];
-    //root.position = [800, 200];
+    root.position = [800, 200];
 
-    //editor.addNode(root);
+    editor.addNode(root);
     editor.addNode(n1);
     editor.addNode(n2);
     editor.addNode(add);
