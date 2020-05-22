@@ -4,7 +4,7 @@ var answer;
 
 function getans(a, b) {
   //console.log(counter);
-  if ((counter - 1 == a) && (b==answer))
+  if ((counter == a) && (b==answer))
     alert(" CORRECT ANSWER ");
   else
     alert("INCORRECT ANSWER");
@@ -184,7 +184,6 @@ class ProductComponent extends Rete.Component {
       var inp1 = new Rete.Input('num',"a", numSocket);
       var inp2 = new Rete.Input('num2', "b", numSocket);
       var out = new Rete.Output('num', "Number", numSocket);
-      counter++;
       //inp1.addControl(new NumControl(this.editor, 'num'))
       //inp2.addControl(new NumControl(this.editor, 'num2'))
 
